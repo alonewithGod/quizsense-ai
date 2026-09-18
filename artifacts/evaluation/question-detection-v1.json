@@ -1,0 +1,15 @@
+{
+  "dataset": "data/question_detection_eval.csv",
+  "samples": 40,
+  "confusion_matrix": {
+    "tp": 20,
+    "tn": 20,
+    "fp": 0,
+    "fn": 0
+  },
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "errors": []
+}

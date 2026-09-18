@@ -1,0 +1,41 @@
+id,language,label,text
+1,en,1,What is a database transaction?
+2,en,1,Why do we need normalization
+3,en,1,Can anyone explain the difference between TCP and UDP?
+4,en,1,How would you solve this recurrence relation
+5,en,1,Who can tell me what virtual memory is
+6,en,1,Is this operation atomic?
+7,en,1,Please explain why the cache miss occurred
+8,en,1,What do you think will happen next
+9,en,1,Where is the page table stored?
+10,en,1,Does this algorithm always terminate
+11,en,0,Today we will learn about database transactions.
+12,en,0,The cache stores recently used data.
+13,en,0,This operation is atomic.
+14,en,0,We can explain the result with locality.
+15,en,0,The quiz starts at three o'clock.
+16,en,0,You should review TCP and UDP.
+17,en,0,Virtual memory uses pages.
+18,en,0,Now the program enters the critical section.
+19,en,0,The next topic is normalization.
+20,en,0,Please open the textbook.
+21,ko,1,데이터베이스 트랜잭션이 무엇인가요?
+22,ko,1,왜 정규화가 필요한가요
+23,ko,1,TCP와 UDP의 차이를 설명해 주세요
+24,ko,1,이 알고리즘은 항상 종료합니까?
+25,ko,1,페이지 테이블은 어디에 저장되나요
+26,ko,1,누가 가상 메모리를 설명해볼까요?
+27,ko,1,이 연산이 원자적인 건가요
+28,ko,1,다음에는 무슨 일이 일어날까요?
+29,ko,1,캐시 미스가 왜 발생했나요
+30,ko,1,이 문제를 어떻게 해결할 수 있을까요
+31,ko,0,오늘은 데이터베이스 트랜잭션을 배웁니다.
+32,ko,0,정규화는 중복을 줄이는 과정입니다.
+33,ko,0,TCP는 연결 지향 프로토콜입니다.
+34,ko,0,이 알고리즘은 항상 종료합니다.
+35,ko,0,페이지 테이블은 메모리에 저장됩니다.
+36,ko,0,가상 메모리를 설명하겠습니다.
+37,ko,0,이 연산은 원자적입니다.
+38,ko,0,다음으로 캐시를 살펴봅니다.
+39,ko,0,오늘 퀴즈 범위는 3장입니다.
+40,ko,0,교재를 펼쳐 주세요.
