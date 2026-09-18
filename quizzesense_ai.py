@@ -14,6 +14,8 @@ from faster_whisper import WhisperModel
 import requests
 from tkinter import scrolledtext
 
+from quizsense.question_detection import QuestionDetector
+
 
 # =========================
 # Configuration
@@ -163,6 +165,22 @@ class FloatingAnswerWindow:
         self.history_text.insert(tk.END, "아직 질의응답 내역이 없습니다.\n")
         self.history_text.config(state=tk.DISABLED)
 
+        self.control_frame = tk.Frame(self.root, bg="#111111")
+        self.control_frame.pack(fill="x", padx=12, pady=(0, 8))
+        self.start_button = tk.Button(
+            self.control_frame,
+            text="청취 시작",
+            command=lambda: self.on_start_requested and self.on_start_requested(),
+        )
+        self.start_button.pack(side="left", padx=(0, 8))
+        self.stop_button = tk.Button(
+            self.control_frame,
+            text="중지",
+            state=tk.DISABLED,
+            command=lambda: self.on_stop_requested and self.on_stop_requested(),
+        )
+        self.stop_button.pack(side="left")
+
         self.export_button = tk.Button(
             self.root,
             text="Q&A 내역 저장",
@@ -176,6 +194,15 @@ class FloatingAnswerWindow:
         self.export_button.pack(anchor="e", padx=12, pady=(0, 12))
 
         self.on_export_requested = None
+        self.on_start_requested = None
+        self.on_stop_requested = None
+
+    def set_running(self, running: bool):
+        def _update():
+            self.start_button.config(state=tk.DISABLED if running else tk.NORMAL)
+            self.stop_button.config(state=tk.NORMAL if running else tk.DISABLED)
+
+        self.root.after(0, _update)
 
     def set_status(self, text: str):
         self.root.after(0, lambda: self.status_label.config(text=text))
@@ -569,24 +596,35 @@ class WalkingEncyclopediaAI:
         self.segmenter = SpeechSegmenter()
         self.transcriber = RealTimeTranscriber()
         self.buffer = RollingTranscriptBuffer()
-        self.question_processor = FastQuestionProcessor()
+        self.question_processor = QuestionDetector(
+            cooldown_sec=QUESTION_COOLDOWN_SEC,
+            duplicate_window_sec=30,
+        )
         self.ollama_client = OllamaClient()
         self.answer_generator = BilingualAnswerGenerator(self.ollama_client)
         self.history_manager = QAHistoryManager()
         self.worker_thread = threading.Thread(target=self._run_loop, daemon=True)
         self.running = False
         self.ui.on_export_requested = self.export_history
+        self.ui.on_start_requested = self.start
+        self.ui.on_stop_requested = self.stop
 
     def start(self):
+        if self.running:
+            return
         self.ui.set_status("마이크 연결 중...")
         self.audio_manager.start()
         self.running = True
+        self.ui.set_running(True)
+        if self.worker_thread.ident is not None:
+            self.worker_thread = threading.Thread(target=self._run_loop, daemon=True)
         self.worker_thread.start()
         self.ui.set_status("실시간 청취 중")
 
     def stop(self):
         self.running = False
         self.audio_manager.stop()
+        self.ui.set_running(False)
         self.ui.set_status("중지됨")
 
     def export_history(self):
@@ -618,8 +656,9 @@ class WalkingEncyclopediaAI:
             print(f"[transcript] {text}")
             self.buffer.add_text(text)
 
-            if self.question_processor.should_trigger(text):
-                extracted_question = self.question_processor.extract_question(text)
+            decision = self.question_processor.should_trigger(text)
+            if decision.is_question:
+                extracted_question = decision.extracted_question
                 if not extracted_question:
                     self.ui.set_status("실시간 청취 중")
                     continue
@@ -661,8 +700,6 @@ def main():
             ui.set_answer_en(f"A (EN): 시작 실패: {e}")
             ui.set_answer_ko(f"A (KO): 시작 실패: {e}")
             ui.set_status("오류")
-
-    threading.Thread(target=start_app, daemon=True).start()
 
     def on_close():
         app.stop()
