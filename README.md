@@ -9,8 +9,9 @@
 - 한국어·영어 규칙 기반 질문 탐지와 탐지 근거 점수
 - 쿨다운 및 유사 질문 중복 억제
 - Ollama 구조화 응답을 이용한 질문 번역·이중 언어 답변
-- Tkinter UI, 청취 시작/중지, Q&A 이력 표시·JSON 저장
+- Tkinter UI, 청취 시작/중지, Q&A 이력 표시·JSON/CSV 저장
 - 질문 탐지 자동 테스트 및 CSV 평가 도구
+- 세션별 STT·답변·전체 지연시간의 평균·중앙값·95백분위수 저장
 
 ## 구조
 
@@ -57,7 +58,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
   --output artifacts/evaluation/question-detection-v1.json
 ```
 
-2026-09-18 기준 자동 테스트 10개가 통과했습니다. 20개 질문과 20개 비질문으로 구성한 내부 평가 세트에서는 정확도·정밀도·재현율·F1이 모두 1.0이었습니다. 이 데이터는 기능 회귀 검증용 소규모 자체 데이터이므로 실제 강의 일반화 성능을 의미하지 않습니다.
+검증 시점별 실행 결과는 [연구 기록](docs/research-log/)에 남깁니다. 20개 질문과 20개 비질문으로 구성한 내부 평가 세트에서는 정확도·정밀도·재현율·F1이 모두 1.0이었습니다. 이 데이터는 기능 회귀 검증용 소규모 자체 데이터이므로 실제 강의 일반화 성능을 의미하지 않습니다.
 
 ## 현재 한계
 
@@ -71,6 +72,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
 
 - [2026-09-18 현재 상태 점검](docs/research-log/2026-09-18-current-status.md)
 - [2026-09-18 구조 개선 및 1차 평가](docs/research-log/2026-09-18-refactor-and-evaluation.md)
+- [2026-09-19 지연시간 통계 저장 개선](docs/research-log/2026-09-19-latency-statistics.md)
 
 ## 라이선스
 
