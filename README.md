@@ -12,6 +12,7 @@
 - Tkinter UI, 청취 시작/중지, Q&A 이력 표시·JSON/CSV 저장
 - 질문 탐지 자동 테스트 및 CSV 평가 도구
 - 세션별 STT·답변·전체 지연시간의 평균·중앙값·95백분위수 저장
+- 마이크·Whisper·Ollama 모델 준비 상태를 확인하는 실행 전 사전 점검
 
 ## 구조
 
@@ -43,10 +44,13 @@ python -m venv .venv
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 ollama pull llama3.1:8b
+python -m quizsense.preflight
 python quizzesense_ai.py
 ```
 
-실행 후 `청취 시작`을 눌러 마이크 입력을 시작하고 `중지`로 스트림을 닫습니다.
+사전 점검의 모든 항목이 `PASS`인지 확인한 뒤 실행합니다. 자동 수집이 필요하면
+`python -m quizsense.preflight --json`을 사용합니다. 실행 후 `청취 시작`을 눌러 마이크 입력을
+시작하고 `중지`로 스트림을 닫습니다.
 
 ## 개발 검증
 
@@ -73,6 +77,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
 - [2026-09-18 현재 상태 점검](docs/research-log/2026-09-18-current-status.md)
 - [2026-09-18 구조 개선 및 1차 평가](docs/research-log/2026-09-18-refactor-and-evaluation.md)
 - [2026-09-19 지연시간 통계 저장 개선](docs/research-log/2026-09-19-latency-statistics.md)
+- [2026-09-22 실행환경 사전 점검 추가](docs/research-log/2026-09-22-runtime-preflight.md)
 
 ## 라이선스
 
