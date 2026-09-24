@@ -5,7 +5,7 @@
 ## 현재 구현 범위
 
 - 16 kHz 마이크 입력과 RMS 기반 음성 구간 분리
-- `faster-whisper` 기반 영어 음성 전사 및 최근 24초 문맥 유지
+- `faster-whisper` 기반 자동 언어 감지 음성 전사 및 최근 24초 문맥 유지
 - 한국어·영어 규칙 기반 질문 탐지와 탐지 근거 점수
 - 쿨다운 및 유사 질문 중복 억제
 - Ollama 구조화 응답을 이용한 질문 번역·이중 언어 답변
@@ -52,6 +52,23 @@ python quizzesense_ai.py
 `python -m quizsense.preflight --json`을 사용합니다. 실행 후 `청취 시작`을 눌러 마이크 입력을
 시작하고 `중지`로 스트림을 닫습니다.
 
+### 주요 실행 설정
+
+앱과 사전 점검은 동일한 `QUIZSENSE_` 환경변수를 사용합니다. 기본값은 자동 언어 감지,
+Whisper `base`, CPU `int8`, Ollama `llama3.1:8b`입니다.
+
+```powershell
+# PowerShell 예시: 한국어로 고정하고 Ollama 대기시간을 45초로 설정
+$env:QUIZSENSE_LANGUAGE="ko"
+$env:QUIZSENSE_OLLAMA_TIMEOUT="45"
+python -m quizsense.preflight
+python quizzesense_ai.py
+```
+
+언어는 `auto`, `en`, `ko` 중 하나를 사용할 수 있습니다. 이외에도 `QUIZSENSE_WHISPER_MODEL`,
+`QUIZSENSE_DEVICE`, `QUIZSENSE_COMPUTE_TYPE`, `QUIZSENSE_OLLAMA_URL`,
+`QUIZSENSE_OLLAMA_MODEL`, `QUIZSENSE_SILENCE_THRESHOLD`를 조정할 수 있습니다.
+
 ## 개발 검증
 
 ```bash
@@ -67,7 +84,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
 ## 현재 한계
 
 - 실제 교실 소음·화자 거리·마이크 종류를 반영한 외부 데이터 평가는 아직 수행하지 않았습니다.
-- 실행 코드의 STT 언어는 현재 영어로 고정되어 있습니다. 질문 판별 코어는 한·영을 지원하지만 한국어 음성 전체 흐름은 후속 검증이 필요합니다.
+- STT 자동 언어 감지와 한국어 고정 설정은 연결했지만 한국어 음성 전체 흐름은 실제 장치에서 후속 검증이 필요합니다.
 - 고정 RMS 임계값은 환경 변화에 민감할 수 있습니다.
 - 실제 장치 환경의 STT 및 Ollama 종단 지연시간 측정이 남아 있습니다.
 - 규칙 기반 탐지기는 간접 질문이나 문맥에 따라 오탐·미탐이 생길 수 있습니다.
@@ -78,6 +95,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
 - [2026-09-18 구조 개선 및 1차 평가](docs/research-log/2026-09-18-refactor-and-evaluation.md)
 - [2026-09-19 지연시간 통계 저장 개선](docs/research-log/2026-09-19-latency-statistics.md)
 - [2026-09-22 실행환경 사전 점검 추가](docs/research-log/2026-09-22-runtime-preflight.md)
+- [2026-09-24 실행 설정 통합](docs/research-log/2026-09-24-runtime-config-integration.md)
 
 ## 라이선스
 

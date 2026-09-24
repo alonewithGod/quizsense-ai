@@ -14,29 +14,32 @@ from faster_whisper import WhisperModel
 import requests
 from tkinter import scrolledtext
 
+from quizsense.config import AppConfig
 from quizsense.question_detection import QuestionDetector
 
 
 # =========================
 # Configuration
 # =========================
-SAMPLE_RATE = 16000
-CHANNELS = 1
-BLOCK_DURATION_SEC = 0.5
-BLOCK_SIZE = int(SAMPLE_RATE * BLOCK_DURATION_SEC)
-ROLLING_CONTEXT_SEC = 24
-SILENCE_RMS_THRESHOLD = 0.01
-MIN_SPEECH_BLOCKS = 2
-MIN_SILENCE_BLOCKS_TO_FLUSH = 2
-TRANSCRIBE_MODEL_SIZE = "base"   # tiny / base / small / medium
-DEVICE = "cpu"                   # "cuda" if GPU is available
-COMPUTE_TYPE = "int8"            # int8 for CPU, float16 for GPU
-OLLAMA_URL = "http://localhost:11434/api/generate"
-OLLAMA_MODEL = "llama3.1:8b"
-QUESTION_COOLDOWN_SEC = 5
-MAX_HISTORY_ITEMS = 50
-OLLAMA_TIMEOUT_SEC = 18
-ANSWER_MAX_TOKENS = 160
+CONFIG = AppConfig.from_env()
+CONFIG.validate()
+
+SAMPLE_RATE = CONFIG.sample_rate
+CHANNELS = CONFIG.channels
+BLOCK_SIZE = CONFIG.block_size
+ROLLING_CONTEXT_SEC = CONFIG.rolling_context_sec
+SILENCE_RMS_THRESHOLD = CONFIG.silence_rms_threshold
+MIN_SPEECH_BLOCKS = CONFIG.min_speech_blocks
+MIN_SILENCE_BLOCKS_TO_FLUSH = CONFIG.min_silence_blocks_to_flush
+TRANSCRIBE_MODEL_SIZE = CONFIG.whisper_model
+DEVICE = CONFIG.device
+COMPUTE_TYPE = CONFIG.compute_type
+OLLAMA_URL = CONFIG.ollama_url
+OLLAMA_MODEL = CONFIG.ollama_model
+QUESTION_COOLDOWN_SEC = CONFIG.question_cooldown_sec
+MAX_HISTORY_ITEMS = CONFIG.max_history_items
+OLLAMA_TIMEOUT_SEC = CONFIG.ollama_timeout_sec
+ANSWER_MAX_TOKENS = CONFIG.answer_max_tokens
 
 
 # =========================
@@ -343,7 +346,7 @@ class RealTimeTranscriber:
         audio = audio.astype(np.float32)
         segments, _ = self.model.transcribe(
             audio,
-            language="en",
+            language=CONFIG.whisper_language,
             vad_filter=False,
             beam_size=1,
             best_of=1,
@@ -598,7 +601,7 @@ class WalkingEncyclopediaAI:
         self.buffer = RollingTranscriptBuffer()
         self.question_processor = QuestionDetector(
             cooldown_sec=QUESTION_COOLDOWN_SEC,
-            duplicate_window_sec=30,
+            duplicate_window_sec=CONFIG.duplicate_window_sec,
         )
         self.ollama_client = OllamaClient()
         self.answer_generator = BilingualAnswerGenerator(self.ollama_client)
