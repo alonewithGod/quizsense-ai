@@ -16,6 +16,7 @@ from tkinter import scrolledtext
 
 from quizsense.config import AppConfig
 from quizsense.question_detection import QuestionDetector
+from quizsense.session import SessionRecorder
 
 
 # =========================
@@ -49,15 +50,6 @@ ANSWER_MAX_TOKENS = CONFIG.answer_max_tokens
 class TranscriptChunk:
     timestamp: float
     text: str
-
-
-@dataclass
-class QAItem:
-    timestamp: float
-    question_en: str
-    question_ko: str
-    answer_en: str
-    answer_ko: str
 
 
 # =========================
@@ -559,37 +551,6 @@ Question in English:
 
 
 # =========================
-# Q&A History
-# =========================
-class QAHistoryManager:
-    def __init__(self):
-        self.items: Deque[QAItem] = deque(maxlen=MAX_HISTORY_ITEMS)
-
-    def add_item(self, question_en: str, question_ko: str, answer_en: str, answer_ko: str):
-        self.items.append(QAItem(
-            timestamp=time.time(),
-            question_en=question_en,
-            question_ko=question_ko,
-            answer_en=answer_en,
-            answer_ko=answer_ko,
-        ))
-
-    def export_json(self, output_path: str) -> str:
-        payload = []
-        for item in self.items:
-            payload.append({
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(item.timestamp)),
-                "question_en": item.question_en,
-                "question_ko": item.question_ko,
-                "answer_en": item.answer_en,
-                "answer_ko": item.answer_ko,
-            })
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
-        return output_path
-
-
-# =========================
 # Main Orchestrator
 # =========================
 class WalkingEncyclopediaAI:
@@ -605,7 +566,7 @@ class WalkingEncyclopediaAI:
         )
         self.ollama_client = OllamaClient()
         self.answer_generator = BilingualAnswerGenerator(self.ollama_client)
-        self.history_manager = QAHistoryManager()
+        self.session_recorder = SessionRecorder(max_items=MAX_HISTORY_ITEMS)
         self.worker_thread = threading.Thread(target=self._run_loop, daemon=True)
         self.running = False
         self.ui.on_export_requested = self.export_history
@@ -632,9 +593,9 @@ class WalkingEncyclopediaAI:
 
     def export_history(self):
         try:
-            filename = f"qa_history_{time.strftime('%Y%m%d_%H%M%S')}.json"
-            path = self.history_manager.export_json(filename)
-            self.ui.set_status(f"Q&A 내역 저장 완료: {path}")
+            session_id = f"session_{time.strftime('%Y%m%d_%H%M%S')}"
+            json_path, csv_path = self.session_recorder.export(CONFIG.log_dir, session_id)
+            self.ui.set_status(f"세션 저장 완료: {json_path}, {csv_path}")
         except Exception as e:
             self.ui.set_status(f"Q&A 내역 저장 실패: {e}")
 
@@ -650,7 +611,9 @@ class WalkingEncyclopediaAI:
                 continue
 
             self.ui.set_status("음성 인식 중...")
+            stt_started = time.perf_counter()
             text = self.transcriber.transcribe(segment)
+            stt_latency_ms = (time.perf_counter() - stt_started) * 1000
 
             if not text:
                 self.ui.set_status("실시간 청취 중")
@@ -672,19 +635,34 @@ class WalkingEncyclopediaAI:
                 self.ui.set_answer_ko("A (KO): 답변 생성 중...")
                 self.ui.set_status("질문 감지됨 → 영어/한국어 답변 생성 중...")
 
+                answer_started = time.perf_counter()
                 package = self.answer_generator.generate_package(
                     self.buffer.get_context(),
                     extracted_question,
                 )
+                answer_latency_ms = (time.perf_counter() - answer_started) * 1000
                 question_ko = package["question_ko"]
                 answer_en = package["answer_en"]
                 answer_ko = package["answer_ko"]
+                failed = answer_en.startswith("[Answer generation failed:")
+                error = answer_en.removeprefix("[Answer generation failed: ").removesuffix("]") if failed else ""
 
                 self.ui.set_question_translation(f"Q (KO): {question_ko}")
                 self.ui.set_answer_en(f"A (EN): {answer_en}")
                 self.ui.set_answer_ko(f"A (KO): {answer_ko}")
                 self.ui.add_history(extracted_question, question_ko, answer_en, answer_ko)
-                self.history_manager.add_item(extracted_question, question_ko, answer_en, answer_ko)
+                self.session_recorder.record(
+                    transcript=text,
+                    question=extracted_question,
+                    question_ko=question_ko,
+                    answer_en=answer_en,
+                    answer_ko=answer_ko,
+                    detection_score=decision.score,
+                    stt_latency_ms=stt_latency_ms,
+                    answer_latency_ms=answer_latency_ms,
+                    status="error" if failed else "ok",
+                    error=error,
+                )
 
             self.ui.set_status("실시간 청취 중")
 

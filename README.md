@@ -9,7 +9,7 @@
 - 한국어·영어 규칙 기반 질문 탐지와 탐지 근거 점수
 - 쿨다운 및 유사 질문 중복 억제
 - Ollama 구조화 응답을 이용한 질문 번역·이중 언어 답변
-- Tkinter UI, 청취 시작/중지, Q&A 이력 표시·JSON/CSV 저장
+- Tkinter UI, 청취 시작/중지, Q&A 이력 표시·지연시간 포함 JSON/CSV 저장
 - 질문 탐지 자동 테스트 및 CSV 평가 도구
 - 세션별 STT·답변·전체 지연시간의 평균·중앙값·95백분위수 저장
 - 마이크·Whisper·Ollama 모델 준비 상태를 확인하는 실행 전 사전 점검
@@ -51,6 +51,9 @@ python quizzesense_ai.py
 사전 점검의 모든 항목이 `PASS`인지 확인한 뒤 실행합니다. 자동 수집이 필요하면
 `python -m quizsense.preflight --json`을 사용합니다. 실행 후 `청취 시작`을 눌러 마이크 입력을
 시작하고 `중지`로 스트림을 닫습니다.
+
+질문 응답 후 `Q&A 내역 저장`을 누르면 `artifacts/sessions`에 JSON과 CSV가 함께 생성됩니다.
+JSON 요약에는 성공·실패 건수와 STT·답변·전체 지연시간의 평균·중앙값·95백분위수가 기록됩니다.
 
 ### 주요 실행 설정
 
@@ -96,6 +99,7 @@ python -m quizsense.evaluation data/question_detection_eval.csv \
 - [2026-09-19 지연시간 통계 저장 개선](docs/research-log/2026-09-19-latency-statistics.md)
 - [2026-09-22 실행환경 사전 점검 추가](docs/research-log/2026-09-22-runtime-preflight.md)
 - [2026-09-24 실행 설정 통합](docs/research-log/2026-09-24-runtime-config-integration.md)
+- [2026-09-26 실시간 지연시간 기록 연결](docs/research-log/2026-09-26-live-latency-recording.md)
 
 ## 라이선스
 
