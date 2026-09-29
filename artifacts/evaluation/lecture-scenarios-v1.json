@@ -1,0 +1,73 @@
+{
+  "dataset": "data/lecture_scenario_eval.csv",
+  "samples": 30,
+  "confusion_matrix": {
+    "tp": 12,
+    "tn": 18,
+    "fp": 0,
+    "fn": 0
+  },
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "breakdown": {
+    "scenario": {
+      "database": {
+        "samples": 10,
+        "confusion_matrix": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0
+        },
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "network": {
+        "samples": 10,
+        "confusion_matrix": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0
+        },
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "operating-system": {
+        "samples": 10,
+        "confusion_matrix": {
+          "tp": 4,
+          "tn": 6,
+          "fp": 0,
+          "fn": 0
+        },
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "language": {
+      "ko": {
+        "samples": 30,
+        "confusion_matrix": {
+          "tp": 12,
+          "tn": 18,
+          "fp": 0,
+          "fn": 0
+        },
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  },
+  "errors": []
+}

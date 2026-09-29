@@ -80,9 +80,14 @@ python -m pytest
 python -m ruff check quizsense tests
 python -m quizsense.evaluation data/question_detection_eval.csv \
   --output artifacts/evaluation/question-detection-v1.json
+python -m quizsense.evaluation data/lecture_scenario_eval.csv \
+  --output artifacts/evaluation/lecture-scenarios-v1.json
 ```
 
-검증 시점별 실행 결과는 [연구 기록](docs/research-log/)에 남깁니다. 20개 질문과 20개 비질문으로 구성한 내부 평가 세트에서는 정확도·정밀도·재현율·F1이 모두 1.0이었습니다. 이 데이터는 기능 회귀 검증용 소규모 자체 데이터이므로 실제 강의 일반화 성능을 의미하지 않습니다.
+검증 시점별 실행 결과는 [연구 기록](docs/research-log/)에 남깁니다. 기본 회귀 평가 외에
+`lecture_scenario_eval.csv`는 데이터베이스·네트워크·운영체제 강의 흐름을 문장 단위로 구성하며,
+평가 결과에는 시나리오별 지표와 오분류 문장이 함께 저장됩니다. 두 데이터 모두 자체 작성한 전사문
+평가이므로 실제 음성 인식이나 강의 일반화 성능을 의미하지 않습니다.
 
 ## 현재 한계
 

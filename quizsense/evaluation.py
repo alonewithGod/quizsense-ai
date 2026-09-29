@@ -10,6 +10,24 @@ from pathlib import Path
 from .question_detection import QuestionDetector
 
 
+def _metrics(rows: list[dict[str, object]]) -> dict[str, object]:
+    tp = sum(bool(r["expected"]) and bool(r["predicted"]) for r in rows)
+    tn = sum(not bool(r["expected"]) and not bool(r["predicted"]) for r in rows)
+    fp = sum(not bool(r["expected"]) and bool(r["predicted"]) for r in rows)
+    fn = sum(bool(r["expected"]) and not bool(r["predicted"]) for r in rows)
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    return {
+        "samples": len(rows),
+        "confusion_matrix": {"tp": tp, "tn": tn, "fp": fp, "fn": fn},
+        "accuracy": round((tp + tn) / len(rows), 4) if rows else 0.0,
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1": round(f1, 4),
+    }
+
+
 def evaluate(dataset_path: str | Path) -> dict[str, object]:
     detector = QuestionDetector(cooldown_sec=0)
     rows: list[dict[str, object]] = []
@@ -26,18 +44,18 @@ def evaluate(dataset_path: str | Path) -> dict[str, object]:
                     "reasons": list(decision.reasons),
                 }
             )
-    tp = sum(r["expected"] and r["predicted"] for r in rows)
-    tn = sum(not r["expected"] and not r["predicted"] for r in rows)
-    fp = sum(not r["expected"] and r["predicted"] for r in rows)
-    fn = sum(r["expected"] and not r["predicted"] for r in rows)
-    precision = tp / (tp + fp) if tp + fp else 0.0
-    recall = tp / (tp + fn) if tp + fn else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    breakdown: dict[str, dict[str, object]] = {}
+    for field in ("scenario", "language"):
+        values = sorted({str(row[field]) for row in rows if row.get(field)})
+        if values:
+            breakdown[field] = {
+                value: _metrics([row for row in rows if row.get(field) == value])
+                for value in values
+            }
     return {
-        "dataset": str(dataset_path), "samples": len(rows),
-        "confusion_matrix": {"tp": tp, "tn": tn, "fp": fp, "fn": fn},
-        "accuracy": round((tp + tn) / len(rows), 4) if rows else 0.0,
-        "precision": round(precision, 4), "recall": round(recall, 4), "f1": round(f1, 4),
+        "dataset": str(dataset_path),
+        **_metrics(rows),
+        "breakdown": breakdown,
         "errors": [r for r in rows if r["expected"] != r["predicted"]],
     }
 

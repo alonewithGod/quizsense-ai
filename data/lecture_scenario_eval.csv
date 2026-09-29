@@ -1,0 +1,31 @@
+id,scenario,turn,language,label,text
+db-01,database,1,ko,0,오늘은 트랜잭션의 성질을 살펴보겠습니다.
+db-02,database,2,ko,0,원자성은 작업이 전부 수행되거나 전혀 수행되지 않는다는 뜻입니다.
+db-03,database,3,ko,1,그렇다면 원자성이 깨지면 어떤 문제가 생길까요?
+db-04,database,4,ko,0,중간 결과가 남아서 데이터 일관성이 훼손될 수 있습니다.
+db-05,database,5,ko,1,누가 일관성과 격리성의 차이를 말해볼까요?
+db-06,database,6,ko,0,격리성은 동시에 실행되는 트랜잭션 사이의 영향을 제한합니다.
+db-07,database,7,ko,1,이 예제에서 커밋은 언제 실행되나요?
+db-08,database,8,ko,0,모든 갱신이 성공한 다음 커밋을 실행합니다.
+db-09,database,9,ko,1,롤백이 필요한 이유는 무엇인가요?
+db-10,database,10,ko,0,실패한 갱신을 이전 상태로 되돌리기 위해서입니다.
+network-01,network,1,ko,0,이제 전송 계층의 두 프로토콜을 비교하겠습니다.
+network-02,network,2,ko,0,TCP는 연결을 설정하고 신뢰성 있는 전송을 제공합니다.
+network-03,network,3,ko,1,TCP와 UDP의 가장 큰 차이는 무엇인가요?
+network-04,network,4,ko,0,UDP는 연결 설정 없이 데이터그램을 전송합니다.
+network-05,network,5,ko,1,실시간 영상에서 UDP를 선택하는 이유를 설명해 주세요.
+network-06,network,6,ko,0,일부 손실보다 지연을 줄이는 것이 중요할 수 있습니다.
+network-07,network,7,ko,1,패킷이 유실되면 TCP는 어떻게 동작할까요?
+network-08,network,8,ko,0,TCP는 확인 응답과 재전송을 이용합니다.
+network-09,network,9,ko,1,여기서 흐름 제어가 필요한 이유는 뭘까요?
+network-10,network,10,ko,0,수신자가 처리할 수 있는 속도에 맞추기 위해서입니다.
+os-01,operating-system,1,ko,0,마지막으로 가상 메모리의 기본 원리를 정리하겠습니다.
+os-02,operating-system,2,ko,0,프로세스는 가상 주소를 사용하고 운영체제가 이를 물리 주소로 변환합니다.
+os-03,operating-system,3,ko,1,페이지 테이블은 어디에 저장되나요?
+os-04,operating-system,4,ko,0,페이지 테이블은 일반적으로 주기억장치에 저장됩니다.
+os-05,operating-system,5,ko,1,TLB가 필요한 이유를 누가 설명해볼까요?
+os-06,operating-system,6,ko,0,TLB는 최근 주소 변환 결과를 캐시합니다.
+os-07,operating-system,7,ko,1,페이지 폴트가 발생하면 어떤 순서로 처리될까요?
+os-08,operating-system,8,ko,0,운영체제가 필요한 페이지를 보조기억장치에서 읽어 옵니다.
+os-09,operating-system,9,ko,1,교체할 프레임이 없다면 어떻게 해야 할까요?
+os-10,operating-system,10,ko,0,페이지 교체 알고리즘으로 희생 프레임을 선택해야 합니다.
