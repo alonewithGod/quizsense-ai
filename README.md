@@ -71,6 +71,8 @@ python quizzesense_ai.py
 언어는 `auto`, `en`, `ko` 중 하나를 사용할 수 있습니다. 이외에도 `QUIZSENSE_WHISPER_MODEL`,
 `QUIZSENSE_DEVICE`, `QUIZSENSE_COMPUTE_TYPE`, `QUIZSENSE_OLLAMA_URL`,
 `QUIZSENSE_OLLAMA_MODEL`, `QUIZSENSE_SILENCE_THRESHOLD`를 조정할 수 있습니다.
+숫자 설정에 문자, `NaN`, `inf` 등 유효하지 않은 값을 입력하면 사전 점검이 해당 환경변수명과
+입력값을 표시하고 실행을 중단합니다.
 
 ## 개발 검증
 

@@ -33,3 +33,26 @@ def test_runtime_settings_are_loaded_from_environment(monkeypatch):
     assert config.sample_rate == 48_000
     assert config.ollama_timeout_sec == 12.5
     assert config.max_history_items == 25
+
+
+def test_invalid_integer_environment_names_the_setting_and_value(monkeypatch):
+    monkeypatch.setenv("QUIZSENSE_SAMPLE_RATE", "sixteen-k")
+
+    with pytest.raises(
+        ValueError,
+        match="QUIZSENSE_SAMPLE_RATE must be an integer; got 'sixteen-k'",
+    ):
+        AppConfig.from_env()
+
+
+@pytest.mark.parametrize("value", ["NaN", "inf", "-inf"])
+def test_non_finite_float_environment_is_rejected(monkeypatch, value):
+    monkeypatch.setenv("QUIZSENSE_OLLAMA_TIMEOUT", value)
+
+    with pytest.raises(ValueError, match="QUIZSENSE_OLLAMA_TIMEOUT must be a finite number"):
+        AppConfig.from_env()
+
+
+def test_direct_non_finite_runtime_values_are_rejected():
+    with pytest.raises(ValueError, match="block duration must be a positive finite number"):
+        AppConfig(block_duration_sec=float("nan")).validate()

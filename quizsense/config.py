@@ -2,18 +2,32 @@
 
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass
 
 
 def _env_int(name: str, default: int) -> int:
     value = os.getenv(name)
-    return default if value is None else int(value)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be an integer; got {value!r}") from exc
 
 
 def _env_float(name: str, default: float) -> float:
     value = os.getenv(name)
-    return default if value is None else float(value)
+    if value is None:
+        return default
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number; got {value!r}") from exc
+    if not math.isfinite(parsed):
+        raise ValueError(f"{name} must be a finite number; got {value!r}")
+    return parsed
 
 
 @dataclass(frozen=True)
@@ -91,21 +105,23 @@ class AppConfig:
         )
 
     def validate(self) -> None:
-        if self.sample_rate <= 0 or self.block_duration_sec <= 0:
+        if not math.isfinite(self.block_duration_sec) or self.block_duration_sec <= 0:
+            raise ValueError("block duration must be a positive finite number")
+        if self.sample_rate <= 0:
             raise ValueError("sample rate and block duration must be positive")
         if self.channels <= 0:
             raise ValueError("channels must be positive")
         if self.language not in {"auto", "en", "ko"}:
             raise ValueError("language must be one of: auto, en, ko")
-        if not 0 < self.silence_rms_threshold < 1:
+        if not math.isfinite(self.silence_rms_threshold) or not 0 < self.silence_rms_threshold < 1:
             raise ValueError("silence RMS threshold must be between 0 and 1")
-        if self.question_cooldown_sec < 0:
+        if not math.isfinite(self.question_cooldown_sec) or self.question_cooldown_sec < 0:
             raise ValueError("question cooldown cannot be negative")
         if self.min_speech_blocks <= 0 or self.min_silence_blocks_to_flush <= 0:
             raise ValueError("speech and silence block counts must be positive")
-        if self.duplicate_window_sec < 0:
+        if not math.isfinite(self.duplicate_window_sec) or self.duplicate_window_sec < 0:
             raise ValueError("duplicate window cannot be negative")
         if self.max_history_items <= 0 or self.answer_max_tokens <= 0:
             raise ValueError("history size and answer token limit must be positive")
-        if self.ollama_timeout_sec <= 0:
+        if not math.isfinite(self.ollama_timeout_sec) or self.ollama_timeout_sec <= 0:
             raise ValueError("Ollama timeout must be positive")
