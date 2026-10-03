@@ -6,6 +6,8 @@ import argparse
 import importlib.util
 import json
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Callable
 from urllib.parse import urlsplit, urlunsplit
 
@@ -19,6 +21,25 @@ class CheckResult:
     name: str
     ok: bool
     detail: str
+
+
+def build_report(config: AppConfig | None, results: list[CheckResult]) -> dict[str, object]:
+    """Build a timestamped, shareable preflight evidence report."""
+    runtime = None
+    if config is not None:
+        runtime = {
+            "language": config.language,
+            "whisper_model": config.whisper_model,
+            "device": config.device,
+            "compute_type": config.compute_type,
+            "ollama_model": config.ollama_model,
+        }
+    return {
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "ready": all(result.ok for result in results),
+        "runtime": runtime,
+        "checks": [asdict(result) for result in results],
+    }
 
 
 def _module_available(name: str) -> bool:
@@ -85,8 +106,10 @@ def run_preflight(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check QuizSense live-run dependencies.")
     parser.add_argument("--json", action="store_true", help="print machine-readable JSON")
+    parser.add_argument("--output", help="save a timestamped JSON evidence report")
     args = parser.parse_args(argv)
 
+    config: AppConfig | None = None
     try:
         config = AppConfig.from_env()
         config.validate()
@@ -100,6 +123,15 @@ def main(argv: list[str] | None = None) -> int:
         for result in results:
             mark = "PASS" if result.ok else "FAIL"
             print(f"[{mark}] {result.name}: {result.detail}")
+
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        report = build_report(config, results)
+        output_path.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
 
     return 0 if all(result.ok for result in results) else 1
 

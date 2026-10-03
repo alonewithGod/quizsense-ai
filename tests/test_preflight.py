@@ -1,5 +1,7 @@
+import json
+
 from quizsense.config import AppConfig
-from quizsense.preflight import main, run_preflight
+from quizsense.preflight import CheckResult, build_report, main, run_preflight
 
 
 def test_preflight_passes_when_dependencies_device_and_model_are_ready():
@@ -34,3 +36,29 @@ def test_cli_returns_failure_for_invalid_environment(monkeypatch, capsys):
 
     assert main(["--json"]) == 1
     assert '"name": "configuration"' in capsys.readouterr().out
+
+
+def test_report_records_runtime_and_readiness():
+    report = build_report(
+        AppConfig(language="ko", whisper_model="small", ollama_model="test:latest"),
+        [CheckResult("input_device", True, "Test Microphone")],
+    )
+
+    assert report["ready"] is True
+    assert report["runtime"]["language"] == "ko"
+    assert report["runtime"]["whisper_model"] == "small"
+    assert report["runtime"]["ollama_model"] == "test:latest"
+    assert report["checks"][0]["detail"] == "Test Microphone"
+    assert str(report["generated_at_utc"]).endswith("+00:00")
+
+
+def test_cli_saves_failure_report_for_invalid_environment(monkeypatch, tmp_path):
+    monkeypatch.setenv("QUIZSENSE_LANGUAGE", "unsupported")
+    output = tmp_path / "reports" / "preflight.json"
+
+    assert main(["--output", str(output)]) == 1
+
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["ready"] is False
+    assert report["runtime"]["language"] == "unsupported"
+    assert report["checks"][0]["name"] == "configuration"
