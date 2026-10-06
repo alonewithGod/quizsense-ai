@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from pathlib import Path
 from typing import Callable
@@ -33,6 +34,9 @@ class SessionRecorder:
         status: str = "ok",
         error: str = "",
     ) -> QAItem:
+        detection_score = self._bounded_score(detection_score)
+        stt_latency_ms = self._latency("stt_latency_ms", stt_latency_ms)
+        answer_latency_ms = self._latency("answer_latency_ms", answer_latency_ms)
         item = QAItem(
             timestamp=self.clock(),
             transcript=transcript,
@@ -41,14 +45,28 @@ class SessionRecorder:
             answer_en=answer_en,
             answer_ko=answer_ko,
             detection_score=round(detection_score, 4),
-            stt_latency_ms=round(max(0.0, stt_latency_ms), 2),
-            answer_latency_ms=round(max(0.0, answer_latency_ms), 2),
-            total_latency_ms=round(max(0.0, stt_latency_ms) + max(0.0, answer_latency_ms), 2),
+            stt_latency_ms=round(stt_latency_ms, 2),
+            answer_latency_ms=round(answer_latency_ms, 2),
+            total_latency_ms=round(stt_latency_ms + answer_latency_ms, 2),
             status=status,
             error=error,
         )
         self.history.add(item)
         return item
+
+    @staticmethod
+    def _latency(name: str, value: float) -> float:
+        numeric = float(value)
+        if not math.isfinite(numeric) or numeric < 0:
+            raise ValueError(f"{name} must be a finite non-negative number; got {value!r}")
+        return numeric
+
+    @staticmethod
+    def _bounded_score(value: float) -> float:
+        numeric = float(value)
+        if not math.isfinite(numeric) or not 0 <= numeric <= 1:
+            raise ValueError(f"detection_score must be between 0 and 1; got {value!r}")
+        return numeric
 
     def export(self, directory: str | Path, session_id: str) -> tuple[Path, Path]:
         return self.history.export(directory, session_id)

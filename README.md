@@ -60,6 +60,8 @@ python -m quizsense.preflight --output artifacts/preflight/demo-pc.json
 
 질문 응답 후 `Q&A 내역 저장`을 누르면 `artifacts/sessions`에 JSON과 CSV가 함께 생성됩니다.
 JSON 요약에는 성공·실패 건수와 STT·답변·전체 지연시간의 평균·중앙값·95백분위수가 기록됩니다.
+지연시간은 0 이상의 유한한 값, 질문 탐지 점수는 0~1 범위인 경우에만 기록되어 비정상 측정값이
+통계에 포함되지 않습니다.
 
 ### 주요 실행 설정
 
@@ -116,6 +118,7 @@ python -m quizsense.evaluation data/lecture_scenario_eval.csv \
 - [2026-09-29 강의형 전사 시나리오 평가](docs/research-log/2026-09-29-lecture-scenario-evaluation.md)
 - [2026-10-01 실행 설정 검증 강화](docs/research-log/2026-10-01-config-validation.md)
 - [2026-10-03 사전 점검 증빙 저장](docs/research-log/2026-10-03-preflight-evidence.md)
+- [2026-10-06 세션 측정값 검증](docs/research-log/2026-10-06-measurement-validation.md)
 
 ## 라이선스
 
