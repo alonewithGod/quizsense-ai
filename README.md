@@ -57,6 +57,8 @@ python -m quizsense.preflight --output artifacts/preflight/demo-pc.json
 
 저장 파일에는 UTC 실행시각, 전체 준비 여부, Whisper·Ollama 핵심 설정과 항목별 PASS/FAIL 결과가
 포함됩니다. 실행 후 `청취 시작`을 눌러 마이크 입력을 시작하고 `중지`로 스트림을 닫습니다.
+발표 당일의 전체 순서, 시연 문장, 증빙 파일과 장애 복구 방법은
+[발표용 실행 절차](docs/demo-runbook.md)를 따릅니다.
 
 질문 응답 후 `Q&A 내역 저장`을 누르면 `artifacts/sessions`에 JSON과 CSV가 함께 생성됩니다.
 JSON 요약에는 성공·실패 건수와 STT·답변·전체 지연시간의 평균·중앙값·95백분위수가 기록됩니다.
@@ -119,6 +121,7 @@ python -m quizsense.evaluation data/lecture_scenario_eval.csv \
 - [2026-10-01 실행 설정 검증 강화](docs/research-log/2026-10-01-config-validation.md)
 - [2026-10-03 사전 점검 증빙 저장](docs/research-log/2026-10-03-preflight-evidence.md)
 - [2026-10-06 세션 측정값 검증](docs/research-log/2026-10-06-measurement-validation.md)
+- [2026-10-08 발표용 실행 절차 완성](docs/research-log/2026-10-08-demo-runbook.md)
 
 ## 라이선스
 
